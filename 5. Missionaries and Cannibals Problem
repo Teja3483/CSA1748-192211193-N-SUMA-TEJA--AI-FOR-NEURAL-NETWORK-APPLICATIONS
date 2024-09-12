@@ -1,0 +1,86 @@
+# Missionaries and Cannibals Problem
+
+class State:
+    def __init__(self, missionaries_left, cannibals_left, missionaries_right, cannibals_right, boat_position):
+        self.missionaries_left = missionaries_left
+        self.cannibals_left = cannibals_left
+        self.missionaries_right = missionaries_right
+        self.cannibals_right = cannibals_right
+        self.boat_position = boat_position  # 0 for left, 1 for right
+
+    def is_valid(self):
+        if (self.missionaries_left < 0 or self.cannibals_left < 0 or
+                self.missionaries_right < 0 or self.cannibals_right < 0):
+            return False
+
+        if (self.missionaries_left > 0 and self.cannibals_left > self.missionaries_left):
+            return False
+
+        if (self.missionaries_right > 0 and self.cannibals_right > self.missionaries_right):
+            return False
+
+        return True
+
+    def is_goal(self):
+        return self.missionaries_right == 3 and self.cannibals_right == 3
+
+    def __str__(self):
+        return f"Left: M={self.missionaries_left} C={self.cannibals_left} | Right: M={self.missionaries_right} C={self.cannibals_right} | Boat: {'Left' if self.boat_position == 0 else 'Right'}"
+
+
+def get_successors(state):
+    successors = []
+    if state.boat_position == 0:  # Boat on the left side
+        for m in range(3):  # Move missionaries
+            for c in range(3):  # Move cannibals
+                if 0 < m + c <= 2:  # At least one and at most two can go
+                    new_state = State(state.missionaries_left - m,
+                                      state.cannibals_left - c,
+                                      state.missionaries_right + m,
+                                      state.cannibals_right + c,
+                                      1)  # Boat moves to the right
+                    if new_state.is_valid():
+                        successors.append(new_state)
+    else:  # Boat on the right side
+        for m in range(3):  # Move missionaries
+            for c in range(3):  # Move cannibals
+                if 0 < m + c <= 2:  # At least one and at most two can go
+                    new_state = State(state.missionaries_left + m,
+                                      state.cannibals_left + c,
+                                      state.missionaries_right - m,
+                                      state.cannibals_right - c,
+                                      0)  # Boat moves to the left
+                    if new_state.is_valid():
+                        successors.append(new_state)
+    return successors
+
+
+def bfs(initial_state):
+    queue = [initial_state]
+    visited = set()
+    while queue:
+        current_state = queue.pop(0)
+        if current_state.is_goal():
+            return current_state
+
+        visited.add((current_state.missionaries_left, current_state.cannibals_left,
+                     current_state.missionaries_right, current_state.cannibals_right,
+                     current_state.boat_position))
+
+        for successor in get_successors(current_state):
+            if (successor.missionaries_left, successor.cannibals_left,
+                successor.missionaries_right, successor.cannibals_right,
+                successor.boat_position) not in visited:
+                queue.append(successor)
+    return None
+
+
+# Initial state: 3 missionaries, 3 cannibals on the left, none on the right, boat on the left
+initial_state = State(3, 3, 0, 0, 0)
+solution = bfs(initial_state)
+
+if solution:
+    print("Solution found:")
+    print(solution)
+else:
+    print("No solution exists.")

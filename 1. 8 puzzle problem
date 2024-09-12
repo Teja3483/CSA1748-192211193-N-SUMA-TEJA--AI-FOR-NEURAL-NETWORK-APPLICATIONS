@@ -1,0 +1,65 @@
+from queue import PriorityQueue
+
+# Define the goal state
+goal_state = [[1, 2, 3], [4, 5, 6], [7, 8, 0]]
+
+# Define the possible moves
+moves = [
+    (1, 3),  # for position 0
+    (0, 2, 4),  # for position 1
+    (1, 5),  # for position 2
+    (0, 4, 6),  # for position 3
+    (1, 3, 5, 7),  # for position 4
+    (2, 4, 8),  # for position 5
+    (3, 7),  # for position 6
+    (4, 6, 8),  # for position 7
+    (5, 7)  # for position 8
+]
+
+# Define the heuristic function (Manhattan distance)
+def heuristic(state):
+    distance = 0
+    for i in range(3):
+        for j in range(3):
+            if state[i][j] != 0:
+                x, y = divmod(state[i][j] - 1, 3)
+                distance += abs(x - i) + abs(y - j)
+    return distance
+
+# Define the A* search function
+def solve_8_puzzle(initial_state):
+    pq = PriorityQueue()
+    pq.put(initial_state, 0)
+    visited = set()
+    cost = {str(initial_state): 0}
+
+    while not pq.empty():
+        state = pq.get()
+        if state == goal_state:
+            return cost[str(state)]
+
+        if str(state) in visited:
+            continue
+
+        visited.add(str(state))
+
+        zero_pos = next((i, j) for i in range(3) for j in range(3) if state[i][j] == 0)
+
+        for move in moves[state[zero_pos[0]][zero_pos[1]]]:
+            new_state = [row[:] for row in state]
+            new_zero_pos = (zero_pos[0] + move // 3, zero_pos[1] + move % 3)
+            if 0 <= new_zero_pos[0] < 3 and 0 <= new_zero_pos[1] < 3:
+                new_state[zero_pos[0]][zero_pos[1]] = new_state[new_zero_pos[0]][new_zero_pos[1]]
+                new_state[new_zero_pos[0]][new_zero_pos[1]] = 0
+                new_cost = cost[str(state)] + 1
+                if str(new_state) not in cost or new_cost < cost[str(new_state)]:
+                    cost[str(new_state)] = new_cost
+                    priority = new_cost + heuristic(new_state)
+                    pq.put(new_state, priority)
+
+    return -1
+
+# Example usage
+initial_state = [[1, 2, 3], [4, 0, 6], [7, 5, 8]]
+steps = solve_8_puzzle(initial_state)
+print(f"Number of steps to solve the puzzle: {steps}")

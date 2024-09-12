@@ -1,0 +1,34 @@
+from itertools import permutations
+
+def tsp(graph):
+    n = len(graph)
+    dp = [[float('inf')] * (1 << n) for _ in range(n)]
+    dp[0][1] = 0
+
+    for mask in range(1 << n):
+        for i in range(n):
+            if mask & (1 << i):
+                for j in range(n):
+                    if mask & (1 << j) and i != j:
+                        dp[i][mask] = min(dp[i][mask], dp[j][mask ^ (1 << i)] + graph[j][i])
+
+    ans = float('inf')
+    for i in range(n):
+        ans = min(ans, dp[i][(1 << n) - 1] + graph[i][0])
+
+    return ans
+
+# Example usage
+if __name__ == "__main__":
+    num_cities = int(input("Enter the number of cities: "))
+
+    graph = [[0] * num_cities for _ in range(num_cities)]
+
+    print("Enter the distances between cities:")
+    for i in range(num_cities):
+        for j in range(num_cities):
+            if i != j:
+                distance = int(input(f"Distance from city {i} to city {j}: "))
+                graph[i][j] = distance
+
+    print("Minimum cost:", tsp(graph))

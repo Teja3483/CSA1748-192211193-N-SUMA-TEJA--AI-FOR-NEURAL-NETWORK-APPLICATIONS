@@ -1,0 +1,46 @@
+class Graph:
+    def __init__(self):
+        self.graph = {}  # Dictionary to hold the graph
+
+    def add_edge(self, u, v):
+        """Add an edge to the graph."""
+        if u not in self.graph:
+            self.graph[u] = []
+        if v not in self.graph:
+            self.graph[v] = []
+        self.graph[u].append(v)
+        self.graph[v].append(u)  # For undirected graph
+
+    def dfs(self, start, visited=None):
+        """Perform DFS starting from the given node and calculate total cost."""
+        if visited is None:
+            visited = set()
+
+        visited.add(start)
+        print(start, end=" ")  # Process the node
+
+        total_cost = 0  # Initialize total cost
+
+        for neighbor in self.graph.get(start, []):
+            if neighbor not in visited:
+                total_cost += 1  # Increment cost for each edge traversed
+                total_cost += self.dfs(neighbor, visited)  # Recursively visit and add cost
+
+        return total_cost
+
+
+# Example usage
+if __name__ == "__main__":
+    g = Graph()
+
+    # Take input from the user
+    num_edges = int(input("Enter the number of edges in the graph: "))
+
+    for _ in range(num_edges):
+        u, v = map(int, input("Enter an edge (two nodes separated by space): ").split())
+        g.add_edge(u, v)
+
+    start_node = int(input("Enter the starting node for DFS: "))
+    print(f"DFS traversal starting from node {start_node}:")
+    total_cost = g.dfs(start_node)
+    print(f"\nTotal cost of DFS traversal: {total_cost}")

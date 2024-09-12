@@ -1,0 +1,83 @@
+import random
+
+
+class VacuumCleaner:
+    def __init__(self, grid):
+        self.grid = grid  # The grid representing the environment
+        self.position = (0, 0)  # Starting position of the vacuum cleaner
+        self.cleaned_count = 0  # Count of cleaned squares
+
+    def is_dirty(self, position):
+        """Check if the current position is dirty."""
+        x, y = position
+        return self.grid[x][y] == 1
+
+    def clean(self, position):
+        """Clean the current position."""
+        x, y = position
+        if self.is_dirty(position):
+            self.grid[x][y] = 0  # Clean the square
+            self.cleaned_count += 1
+            print(f"Cleaned position: {position}")
+
+    def move(self, direction):
+        """Move the vacuum cleaner in the specified direction."""
+        x, y = self.position
+        if direction == 'up' and x > 0:
+            self.position = (x - 1, y)
+        elif direction == 'down' and x < len(self.grid) - 1:
+            self.position = (x + 1, y)
+        elif direction == 'left' and y > 0:
+            self.position = (x, y - 1)
+        elif direction == 'right' and y < len(self.grid[0]) - 1:
+            self.position = (x, y + 1)
+        else:
+            print("Move not possible!")
+
+    def get_possible_moves(self):
+        """Get a list of possible moves."""
+        moves = []
+        x, y = self.position
+        if x > 0: moves.append('up')
+        if x < len(self.grid) - 1: moves.append('down')
+        if y > 0: moves.append('left')
+        if y < len(self.grid[0]) - 1: moves.append('right')
+        return moves
+
+    def run(self):
+        """Run the vacuum cleaner until the grid is clean."""
+        while self.cleaned_count < sum(sum(row) for row in self.grid):
+            print(f"Current position: {self.position}")
+            self.clean(self.position)
+
+            possible_moves = self.get_possible_moves()
+            if not possible_moves:
+                break  # No more moves possible
+
+            # Randomly choose a move
+            move = random.choice(possible_moves)
+            print(f"Moving {move}")
+            self.move(move)
+
+        print("Cleaning complete!")
+        print(f"Total cleaned squares: {self.cleaned_count}")
+
+
+def create_grid(rows, cols, dirty_ratio=0.3):
+    """Create a grid with a specified ratio of dirty squares."""
+    grid = [[1 if random.random() < dirty_ratio else 0 for _ in range(cols)] for _ in range(rows)]
+    return grid
+
+
+# Example usage
+if __name__ == "__main__":
+    rows, cols = 5, 5  # Size of the grid
+    dirty_ratio = 0.4  # 40% of the grid will be dirty
+    grid = create_grid(rows, cols, dirty_ratio)
+
+    print("Initial Grid:")
+    for row in grid:
+        print(row)
+
+    vacuum = VacuumCleaner(grid)
+    vacuum.run()

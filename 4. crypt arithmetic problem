@@ -1,0 +1,37 @@
+from itertools import permutations
+
+def is_valid_solution(mapping):
+    """Check if the current mapping of letters to digits is valid."""
+    send = mapping['S'] * 1000 + mapping['E'] * 100 + mapping['N'] * 10 + mapping['D']
+    more = mapping['M'] * 1000 + mapping['O'] * 100 + mapping['R'] * 10 + mapping['E']
+    money = mapping['M'] * 10000 + mapping['O'] * 1000 + mapping['N'] * 100 + mapping['E'] * 10 + mapping['Y']
+    return send + more == money
+
+def solve_cryptarithmetic():
+    """Solve the SEND + MORE = MONEY cryptarithmetic problem."""
+    letters = 'SENDMORY'  # Unique letters in the puzzle
+    digits = range(10)    # Digits from 0 to 9
+
+    # Generate all possible permutations of digits for the letters
+    for perm in permutations(digits, len(letters)):
+        mapping = dict(zip(letters, perm))
+
+        # Check if the leading letters are zero, which is not allowed
+        if mapping['S'] == 0 or mapping['M'] == 0:
+            continue
+
+        # Validate the current mapping
+        if is_valid_solution(mapping):
+            return mapping
+
+    return None
+
+# Example usage
+solution = solve_cryptarithmetic()
+
+if solution:
+    print("Solution found:")
+    for letter, digit in solution.items():
+        print(f"{letter} = {digit}")
+else:
+    print("No solution found.")
